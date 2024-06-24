@@ -2,12 +2,11 @@ import streamlit as st
 import cv2
 import numpy as np
 from PIL import Image
-# from rembg import remove
+from rembg import remove
 import pytesseract
 import base64
 import io
 import pandas as pd
-
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\\Program Files\\Tesseract-OCR.exe'
 
@@ -49,22 +48,7 @@ if uploaded_files:
             img_array = np.array(img)
 
             if "Remove Background" in filters:
-                img = img_array
-                mask = np.zeros(img.shape[:2], np.uint8)
-
-                # Create temporary arrays for the GrabCut algorithm
-                bgdModel = np.zeros((1, 65), np.float64)
-                fgdModel = np.zeros((1, 65), np.float64)
-
-                # Define the rectangle around the foreground object
-                rect = (50, 50, img.shape[1]-50, img.shape[0]-50)
-
-                # Apply the GrabCut algorithm
-                cv2.grabCut(img, mask, rect, bgdModel, fgdModel, 5, cv2.GC_INIT_WITH_RECT)
-
-                # Modify the mask to separate the background and foreground
-                mask2 = np.where((mask == 2) | (mask == 0), 0, 1).astype('uint8')
-                img_array = img * mask2[:, :, np.newaxis]
+                img_array = remove(img_array)
 
             if "Standard Size" in filters:
                 width, height = map(int, standard_size.split('x'))
